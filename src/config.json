@@ -1,5 +1,5 @@
 {
 	"rssURL": "http://orbis-naturae.forumactif.com/rss",
-	"timeDelay": 1,
+	"timeDelay": 60,
 	"botConfigFile": "botConfig.json"
 }
