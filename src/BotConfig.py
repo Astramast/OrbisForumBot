@@ -8,5 +8,4 @@ class BotConfig():
 		self.prefix = self.jsonConfig["prefix"]
 		self.dataFilename = self.jsonConfig["dataFilename"]
 		self.intents = discord.Intents.default()
-		self.intents.message_content = True
 
