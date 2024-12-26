@@ -1,11 +1,14 @@
 from discord.ext import commands
 import discord
 import json
+import requests
 
 class OrbisForumBot(commands.Bot):
 	def __init__(self, botConfig):
 		super().__init__(command_prefix = botConfig.prefix, intents = botConfig.intents)
 		self.dataFilename = botConfig.dataFilename
+		self.appID = botConfig.appID
+		self.DISCORD_TOKEN = botConfig.DISCORD_TOKEN
 		self.channels = dict()
 		try:
 			with open(self.dataFilename, "r") as f:
@@ -44,12 +47,23 @@ class OrbisForumBot(commands.Bot):
 			self.get_channel(channel).send(topic)
 			print(f"Sent to {channel}: {topic}")
 	
+	def declareCommands(self, guildID):
+		url = f"https://discord.com/api/v10/applications/{self.appID}/guilds/guildID/commands"
+		commands = [{"name": "ping", "description": "Ping the bot", "type": 1},
+					{"name": "startfeed", "description": "Start the RSS feed", "type": 1},
+					{"name": "stopfeed", "description": "Stop the RSS feed", "type": 1}]
+		headers = {"Authorization": f"Bot {self.DISCORD_TOKEN}"}
+		for command in commands:
+			r = requests.get(url, headers = headers, json=command)
+
 	async def on_ready(self):
-		await self.tree.sync()
+		for guild in self.guilds:
+			self.declareCommands(guild)
+			print(f"Declared commands for {guild}")
 		print(f"Bot ready ! Logged in as {self.user}")
 	
-	async def setup_hook(self):
-		self.tree.add_command(self.ping)
-		self.tree.add_command(self.startFeed)
-		self.tree.add_command(self.stopFeed)
+#	async def setup_hook(self):
+#		self.tree.add_command(self.ping)
+#		self.tree.add_command(self.startFeed)
+#		self.tree.add_command(self.stopFeed)
 

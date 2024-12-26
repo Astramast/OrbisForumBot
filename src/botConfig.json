@@ -1,4 +1,5 @@
 {
 	"dataFilename": "channels.json",
-	"prefix": "!"
+	"prefix": "!",
+	"appID": "1321664738891010069"
 }

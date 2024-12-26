@@ -28,10 +28,7 @@ rssFeedGetter = RSSFeedGetter(rssURL)
 rssFeed = RSSFeed(rssFeedGetter)
 botConfig = BotConfig(config["botConfigFile"])
 bot = OrbisForumBot(botConfig)
-
-load_dotenv()
-DISCORD_TOKEN = getenv("DISCORD_TOKEN")
-bot.run(DISCORD_TOKEN)
+bot.run(botConfig.DISCORD_TOKEN)
 lastTopic = None
 #while True:
 #	rssFeed.refresh()
