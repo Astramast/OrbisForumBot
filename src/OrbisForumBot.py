@@ -48,17 +48,18 @@ class OrbisForumBot(commands.Bot):
 			print(f"Sent to {channel}: {topic}")
 	
 	def declareCommands(self, guildID):
-		url = f"https://discord.com/api/v10/applications/{self.appID}/guilds/guildID/commands"
+		url = f"https://discord.com/api/v10/applications/{self.appID}/guilds/{guildID}/commands"
 		commands = [{"name": "ping", "description": "Ping the bot", "type": 1},
 					{"name": "startfeed", "description": "Start the RSS feed", "type": 1},
 					{"name": "stopfeed", "description": "Stop the RSS feed", "type": 1}]
 		headers = {"Authorization": f"Bot {self.DISCORD_TOKEN}"}
-		for command in commands:
-			r = requests.get(url, headers = headers, json=command)
+		r = requests.post(url, headers = headers, json=commands)
+		print(r)
+		print(r.json())
 
 	async def on_ready(self):
 		for guild in self.guilds:
-			self.declareCommands(guild)
+			self.declareCommands(guild.id)
 			print(f"Declared commands for {guild}")
 		print(f"Bot ready ! Logged in as {self.user}")
 	
