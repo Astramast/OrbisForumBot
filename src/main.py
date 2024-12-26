@@ -33,12 +33,12 @@ load_dotenv()
 DISCORD_TOKEN = getenv("DISCORD_TOKEN")
 bot.run(DISCORD_TOKEN)
 lastTopic = None
-while True:
-	rssFeed.refresh()
-	newTopic = rssFeed.getLastTopic()
-	if newTopic != lastTopic:
-		print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - New topic: {newTopic}")
-		lastTopic = newTopic
-		bot.feed(str(newTopic))
-	time.sleep(TIME_DELAY)
+#while True:
+#	rssFeed.refresh()
+#	newTopic = rssFeed.getLastTopic()
+#	if newTopic != lastTopic:
+#		print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - New topic: {newTopic}")
+#		lastTopic = newTopic
+#		bot.feed(str(newTopic))
+#	time.sleep(TIME_DELAY)
 

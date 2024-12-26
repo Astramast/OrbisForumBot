@@ -17,20 +17,22 @@ class OrbisForumBot(commands.Bot):
 		with open(self.dataFilename, "w") as f:
 			json.dump(self.channels, f)
 	
-	@commands.command()
+	@discord.app_commands.command(name="ping", description="Ping the bot")
 	async def ping(self, interaction: discord.Interaction):
 		await interaction.response.send_message("Pong !")
 	
-	@commands.command()
-	async def start(self, interaction: discord.Interaction):
+	@discord.app_commands.command(name="startfeed", description="Start the RSS feed")
+	@discord.app_commands.checks.has_permissions(administrator = True)
+	async def startFeed(self, interaction: discord.Interaction):
 		self.channels[interaction.guild_id] = interaction.channel_id
 		self.saveChannels()
 		await interaction.response.send_message(
 			f"Feed channel started ! RSS Updates will be sent here in {interaction.channel.mention}."
 		)
 	
-	@commands.command()
-	async def stop(self, interaction: discord.Interaction):
+	@discord.app_commands.command(name="stopfeed", description="Stop the RSS feed")
+	@discord.app_commands.checks.has_permissions(administrator = True)
+	async def stopFeed(self, interaction: discord.Interaction):
 		del self.channels[interaction.guild_id]
 		self.saveChannels()
 		await interaction.response.send_message(
@@ -42,7 +44,12 @@ class OrbisForumBot(commands.Bot):
 			self.get_channel(channel).send(topic)
 			print(f"Sent to {channel}: {topic}")
 	
-	@bot.event()
 	async def on_ready(self):
+		await self.tree.sync()
 		print(f"Bot ready ! Logged in as {self.user}")
+	
+	async def setup_hook(self):
+		self.tree.add_command(self.ping)
+		self.tree.add_command(self.startFeed)
+		self.tree.add_command(self.stopFeed)
 
