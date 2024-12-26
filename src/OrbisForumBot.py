@@ -49,10 +49,27 @@ class OrbisForumBot(commands.Bot):
 	
 	def declareCommands(self, guildID):
 		url = f"https://discord.com/api/v10/applications/{self.appID}/guilds/{guildID}/commands"
-		commands = [{"name": "ping", "description": "Ping the bot", "type": 1},
-					{"name": "startfeed", "description": "Start the RSS feed", "type": 1},
-					{"name": "stopfeed", "description": "Stop the RSS feed", "type": 1}]
-		headers = {"Authorization": f"Bot {self.DISCORD_TOKEN}"}
+		commands = [
+			{
+				"name": "ping", 
+				"description": "Ping the bot", 
+				"type": 1
+			},
+			{
+				"name": "startfeed", 
+				"description": "Start the RSS feed", 
+				"type": 1
+			},
+			{
+				"name": "stopfeed", 
+				"description": "Stop the RSS feed", 
+				"type": 1
+			}
+		]
+		headers = {
+			"Authorization": f"Bot {self.DISCORD_TOKEN}",
+			"Content-Type": "application/json"
+		}
 		r = requests.post(url, headers = headers, json=commands)
 		print(r)
 		print(r.json())
