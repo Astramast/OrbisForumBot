@@ -1,3 +1,5 @@
+from Topic import Topic
+
 class RSSFeed():
 	def __init__(self, rssFeedGetter):
 		self.feedGetter = rssFeedGetter
@@ -16,7 +18,7 @@ class RSSFeed():
 		title = self.getLastTopicTitle()
 		link = self.getLastTopicLink()
 		author = self.getLastTopicAuthor()
-		return (title, link, author)
+		return Topic((title, link, author))
 	
 	def refresh(self):
 		self.feed = self.feedGetter.getFeed()

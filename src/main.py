@@ -1,4 +1,4 @@
-from discord.ext import commands
+from discord.ext import commands, tasks
 import discord
 import asyncio
 import json
@@ -30,6 +30,7 @@ rssURL = config["rssURL"]
 rssFeedGetter = RSSFeedGetter(rssURL)
 rssFeed = RSSFeed(rssFeedGetter)
 botConfig = BotConfig("botConfig.json")
+lastTopic = None
 
 def saveChannels():
 	with open(botConfig.dataFilename, "w") as f:
@@ -48,14 +49,15 @@ except FileNotFoundError:
 @bot.event
 async def on_ready():
 	print(f"Bot ready ! Logged in as {bot.user}")
+	RSSLoop.start()
 
 @tasks.loop(seconds = TIME_DELAY)
 async def RSSLoop():
-	lastTopic = None
-	newTopic = input("Send Message : ")
+	global lastTopic
+	newTopic = rssFeed.getLastTopic()
 	if newTopic != lastTopic:
 		for channel in botChannels.values():
-			await bot.get_channel(channel).send(newTopic)
+			await bot.get_channel(channel).send(str(newTopic))
 			print(f"Sent to {channel}: {newTopic}")
 		lastTopic = newTopic
 
@@ -65,15 +67,21 @@ async def ping(ctx):
 
 @bot.command()
 async def startfeed(ctx):
-	botChannels[ctx.guild.id] = ctx.channel.id
+	botChannels[str(ctx.guild.id)] = ctx.channel.id
 	saveChannels()
 	await ctx.send("Feed channel started ! RSS Updates will be sent here in " + ctx.channel.mention + " .")
+	await ctx.send(rssFeed.getLastTopic())
 
 @bot.command()
 async def stopfeed(ctx):
-	del botChannels[ctx.guild.id]
+	try:
+		channel = botChannels.pop(str(ctx.guild.id))
+	except KeyError:
+		await ctx.send(f"Feed channel not started in **{ctx.guild.name}** ! Try {botConfig.prefix}startfeed to get started.")
+		return
 	saveChannels()
-	await ctx.send("Feed channel stopped ! RSS Updates will no longer be sent here in " + ctx.channel.mention + " .")
+	channel = bot.get_channel(channel)
+	await channel.send("Feed channel stopped ! RSS Updates will no longer be sent here in " + channel.mention + " .")
 
 bot.run(botConfig.DISCORD_TOKEN)
 
