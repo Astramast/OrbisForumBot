@@ -2,7 +2,49 @@ from discord.ext import commands
 import discord
 import json
 import requests
+from time import sleep
+from BotConfig import BotConfig
 
+botConfig = BotConfig("botConfig.json")
+
+def saveChannels():
+	with open(botConfig.dataFilename, "w") as f:
+		json.dump(botChannels, f)
+
+
+global bot
+bot = commands.Bot(command_prefix = botConfig.prefix, intents = botConfig.intents)
+botChannels = dict()
+try:
+	with open(botConfig.dataFilename, "r") as f:
+		botChannels = json.load(f)
+except FileNotFoundError:
+	saveChannels()
+
+@bot.event
+async def on_ready():
+	print(f"Bot ready ! Logged in as {bot.user}")
+
+@bot.command()
+async def ping(ctx):
+	sleep(10)
+	await ctx.send("Pong !")
+
+@bot.command()
+async def startfeed(ctx):
+	botChannels[ctx.guild.id] = ctx.channel.id
+	saveChannels()
+	await ctx.send("Feed channel started ! RSS Updates will be sent here in " + ctx.channel.mention + " .")
+
+@bot.command()
+async def stopfeed(ctx):
+	del botChannels[ctx.guild.id]
+	saveChannels()
+	await ctx.send("Feed channel stopped ! RSS Updates will no longer be sent here in " + ctx.channel.mention + " .")
+
+bot.run(botConfig.DISCORD_TOKEN)
+
+unusable = """
 class OrbisForumBot(commands.Bot):
 	def __init__(self, botConfig):
 		super().__init__(command_prefix = botConfig.prefix, intents = botConfig.intents)
@@ -53,7 +95,7 @@ class OrbisForumBot(commands.Bot):
 			{"name": "startfeed", "description": "Start the RSS feed", "type": 1},
 			{"name": "stopfeed", "description": "Stop the RSS feed", "type": 1}]
 		headers = {"Authorization": f"Bot {self.DISCORD_TOKEN}","Content-Type": "application/json"}
-		r = requests.post(url, headers = headers, json=commands)
+		r = requests.put(url, headers = headers, json=commands)
 		print(r)
 		print(r.json())
 
@@ -61,10 +103,11 @@ class OrbisForumBot(commands.Bot):
 		for guild in self.guilds:
 			self.declareCommands(guild.id)
 			print(f"Declared commands for {guild}")
+		print(self.tree.get_commands())
 		print(f"Bot ready ! Logged in as {self.user}")
 	
 #	async def setup_hook(self):
 #		self.tree.add_command(self.ping)
 #		self.tree.add_command(self.startFeed)
 #		self.tree.add_command(self.stopFeed)
-
+"""
