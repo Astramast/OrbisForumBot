@@ -47,23 +47,20 @@ except FileNotFoundError:
 
 @bot.event
 async def on_ready():
-	async def RSSLoop():
-		lastTopic = None
-		while True:
-			newTopic = input("Send Message : ")
-			if newTopic != lastTopic:
-				for channel in botChannels.values():
-					await bot.get_channel(channel).send(newTopic)
-					print(f"Sent to {channel}: {newTopic}")
-				lastTopic = newTopic
-			sleep(TIME_DELAY)
-	mainThread = threading.Thread(target=asyncio.run, args=(RSSLoop(),))
-	mainThread.start()
 	print(f"Bot ready ! Logged in as {bot.user}")
+
+@tasks.loop(seconds = TIME_DELAY)
+async def RSSLoop():
+	lastTopic = None
+	newTopic = input("Send Message : ")
+	if newTopic != lastTopic:
+		for channel in botChannels.values():
+			await bot.get_channel(channel).send(newTopic)
+			print(f"Sent to {channel}: {newTopic}")
+		lastTopic = newTopic
 
 @bot.command()
 async def ping(ctx):
-	sleep(10)
 	await ctx.send("Pong !")
 
 @bot.command()
